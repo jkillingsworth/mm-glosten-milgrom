@@ -94,13 +94,13 @@ type ExecutionPolicy =
 
 let private matchStochasticHi random state =
     match Sample.continuousUniform 0.0 1.0 random with
-    | prob when prob < probTakeValueHi
+    | sample when sample < probTakeValueHi
         -> executeTake state
     | _ -> executeSell state
 
 let private matchStochasticLo random state =
     match Sample.continuousUniform 0.0 1.0 random with
-    | x when x < probSellValueLo
+    | sample when sample < probSellValueLo
         -> executeSell state
     | _ -> executeTake state
 

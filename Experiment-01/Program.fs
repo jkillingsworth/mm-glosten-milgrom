@@ -5,8 +5,8 @@ open System
 //-------------------------------------------------------------------------------------------------
 
 let random = Random()
-let policy = Compute.AlwaysTakeHi
-let result = Compute.generateResults random policy |> Seq.take (10 + 1) |> Seq.toArray
+let policy = Compute.StochasticHi
+let result = Compute.generateResults random policy |> Seq.take (25 + 1) |> Seq.toArray
 
 Chart.renderChart @"..\..\..\Experiment-01.png" result
 

@@ -13,43 +13,73 @@ let probInit value = ContinuousUniform.PDF(valueLower, valueUpper, value)
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
-let probInfTake value = ContinuousUniform.CDF(valueLower, valueUpper, value)
-let probInfSell value = 1.0 - probInfTake value
-
 let probUnfTake value = 0.5
 let probUnfSell value = 0.5
-
-let probTake value = (probInf * probInfTake value) + (probUnf * probUnfTake value)
-let probSell value = (probInf * probInfSell value) + (probUnf * probUnfSell value)
 
 //-------------------------------------------------------------------------------------------------
 
 let private integrate f lower upper =
     let f = System.Func<_,_>(f)
-    let partitions = 1000
-    NewtonCotesTrapeziumRule.IntegrateComposite(f, valueLower, valueUpper, partitions)
+    let partitions = 10000
+    NewtonCotesTrapeziumRule.IntegrateComposite(f, lower, upper, partitions)
 
-let private computeBid p =
+//-------------------------------------------------------------------------------------------------
+
+let private computePosteriorTake p =
+
+    let estimate =
+        let f value = (p value) * value
+        integrate f valueLower valueUpper
+
+    let probInfTake value = if value > estimate then 1.0 else 0.0
+
+    let probTake value
+        = (probInf * (probInfTake value))
+        + (probUnf * (probUnfTake value))
+
+    let f value = (p value) * (probTake value)
+    let probTakeOverall = integrate f valueLower valueUpper
+    let p' value = (f value) / probTakeOverall
+
+    p'
+
+let private computePosteriorSell p =
+
+    let estimate =
+        let f value = (p value) * value
+        integrate f valueLower valueUpper
+
+    let probInfSell value = if value < estimate then 1.0 else 0.0
+
+    let probSell value
+        = (probInf * (probInfSell value))
+        + (probUnf * (probUnfSell value))
 
     let f value = (p value) * (probSell value)
     let probSellOverall = integrate f valueLower valueUpper
-    let probValueGivenSell value = (f value) / probSellOverall
+    let p' value = (f value) / probSellOverall
 
-    let f value = value * (probValueGivenSell value)
+    p'
+
+//-------------------------------------------------------------------------------------------------
+
+let private computeBid p =
+
+    let p' = computePosteriorSell p
+    let f value = (p' value) * value
     integrate f valueLower valueUpper
 
 let private computeAsk p =
 
-    let f value = (p value) * (probTake value)
-    let probTakeOverall = integrate f valueLower valueUpper
-    let probValueGivenTake value = (f value) / probTakeOverall
-
-    let f value = value * (probValueGivenTake value)
+    let p' = computePosteriorTake p
+    let f value = (p' value) * value
     integrate f valueLower valueUpper
+
+//-------------------------------------------------------------------------------------------------
 
 let private executeTake p =
 
-    let p' value = (p value) * (probTake value)
+    let p' = computePosteriorTake p
 
     let bid = computeBid p'
     let ask = computeAsk p'
@@ -58,7 +88,7 @@ let private executeTake p =
 
 let private executeSell p =
 
-    let p' value = (p value) * (probSell value)
+    let p' = computePosteriorSell p
 
     let bid = computeBid p'
     let ask = computeAsk p'

@@ -5,6 +5,13 @@ open MathNet.Numerics.Integration
 
 //-------------------------------------------------------------------------------------------------
 
+let private integrate f lower upper =
+    let f = System.Func<_,_>(f)
+    let partitions = 10000
+    NewtonCotesTrapeziumRule.IntegrateComposite(f, lower, upper, partitions)
+
+//-------------------------------------------------------------------------------------------------
+
 let valueUpper = 51.0
 let valueLower = 50.0
 
@@ -13,15 +20,11 @@ let probInit value = ContinuousUniform.PDF(valueLower, valueUpper, value)
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
+let probInfTake value estimate = if value > estimate then 1.0 else 0.0
+let probInfSell value estimate = if value < estimate then 1.0 else 0.0
+
 let probUnfTake value = 0.5
 let probUnfSell value = 0.5
-
-//-------------------------------------------------------------------------------------------------
-
-let private integrate f lower upper =
-    let f = System.Func<_,_>(f)
-    let partitions = 10000
-    NewtonCotesTrapeziumRule.IntegrateComposite(f, lower, upper, partitions)
 
 //-------------------------------------------------------------------------------------------------
 
@@ -31,10 +34,8 @@ let private computePosteriorTake p =
         let f value = (p value) * value
         integrate f valueLower valueUpper
 
-    let probInfTake value = if value > estimate then 1.0 else 0.0
-
     let probTake value
-        = (probInf * (probInfTake value))
+        = (probInf * (probInfTake value estimate))
         + (probUnf * (probUnfTake value))
 
     let f value = (p value) * (probTake value)
@@ -49,10 +50,8 @@ let private computePosteriorSell p =
         let f value = (p value) * value
         integrate f valueLower valueUpper
 
-    let probInfSell value = if value < estimate then 1.0 else 0.0
-
     let probSell value
-        = (probInf * (probInfSell value))
+        = (probInf * (probInfSell value estimate))
         + (probUnf * (probUnfSell value))
 
     let f value = (p value) * (probSell value)
@@ -133,9 +132,9 @@ let generateResults random executionPolicy =
     let generator (bid, ask, p) =
         let execute = getExecuteFunc random (value, bid, ask)
         let (bid, ask, p) = execute p
-        Some ((value, bid, ask), (bid, ask, p))
+        Some ((value, bid, ask, p), (bid, ask, p))
 
     seq {
-        yield (value, bid, ask)
+        yield (value, bid, ask, p)
         yield! Seq.unfold generator (bid, ask, p)
     }

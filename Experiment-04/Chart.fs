@@ -131,7 +131,7 @@ let renderBelief path data =
     axis.AxisTitleDistance <- 16.0
     model.Axes.Add(axis)
 
-    let series = FunctionSeries(System.Func<_,_>(p), lower, upper, 0.01)
+    let series = FunctionSeries(System.Func<_,_>(p), lower, upper, 0.001)
     series.Title <- "Probability"
     series.StrokeThickness <- 1.0
     model.Series.Add(series)

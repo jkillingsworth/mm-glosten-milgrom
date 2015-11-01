@@ -19,55 +19,19 @@ let probInitValueLo = 0.2
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
-let probUnfTakeValueHi = 0.5
-let probUnfTakeValue75 = 0.5
-let probUnfTakeValue50 = 0.5
-let probUnfTakeValue25 = 0.5
-let probUnfTakeValueLo = 0.5
-
 let probUnfSellValueHi = 0.5
 let probUnfSellValue75 = 0.5
 let probUnfSellValue50 = 0.5
 let probUnfSellValue25 = 0.5
 let probUnfSellValueLo = 0.5
 
+let probUnfTakeValueHi = 0.5
+let probUnfTakeValue75 = 0.5
+let probUnfTakeValue50 = 0.5
+let probUnfTakeValue25 = 0.5
+let probUnfTakeValueLo = 0.5
+
 //-------------------------------------------------------------------------------------------------
-
-let private computePosteriorTake (pHi, p75, p50, p25, pLo) =
-
-    let estimate
-        = (pHi * valueHi)
-        + (p75 * value75)
-        + (p50 * value50)
-        + (p25 * value25)
-        + (pLo * valueLo)
-
-    let probInfTakeValueHi = if valueHi > estimate then 1.0 else 0.0
-    let probInfTakeValue75 = if value75 > estimate then 1.0 else 0.0
-    let probInfTakeValue50 = if value50 > estimate then 1.0 else 0.0
-    let probInfTakeValue25 = if value25 > estimate then 1.0 else 0.0
-    let probInfTakeValueLo = if valueLo > estimate then 1.0 else 0.0
-
-    let probTakeValueHi = (probInf * probInfTakeValueHi) + (probUnf * probUnfTakeValueHi)
-    let probTakeValue75 = (probInf * probInfTakeValue75) + (probUnf * probUnfTakeValue75)
-    let probTakeValue50 = (probInf * probInfTakeValue50) + (probUnf * probUnfTakeValue50)
-    let probTakeValue25 = (probInf * probInfTakeValue25) + (probUnf * probUnfTakeValue25)
-    let probTakeValueLo = (probInf * probInfTakeValueLo) + (probUnf * probUnfTakeValueLo)
-
-    let probTake
-        = (pHi * probTakeValueHi)
-        + (p75 * probTakeValue75)
-        + (p50 * probTakeValue50)
-        + (p25 * probTakeValue25)
-        + (pLo * probTakeValueLo)
-
-    let pHi' = (pHi * probTakeValueHi) / probTake
-    let p75' = (p75 * probTakeValue75) / probTake
-    let p50' = (p50 * probTakeValue50) / probTake
-    let p25' = (p25 * probTakeValue25) / probTake
-    let pLo' = (pLo * probTakeValueLo) / probTake
-
-    (pHi', p75', p50', p25', pLo')
 
 let private computePosteriorSell (pHi, p75, p50, p25, pLo) =
 
@@ -105,6 +69,42 @@ let private computePosteriorSell (pHi, p75, p50, p25, pLo) =
 
     (pHi', p75', p50', p25', pLo')
 
+let private computePosteriorTake (pHi, p75, p50, p25, pLo) =
+
+    let estimate
+        = (pHi * valueHi)
+        + (p75 * value75)
+        + (p50 * value50)
+        + (p25 * value25)
+        + (pLo * valueLo)
+
+    let probInfTakeValueHi = if valueHi > estimate then 1.0 else 0.0
+    let probInfTakeValue75 = if value75 > estimate then 1.0 else 0.0
+    let probInfTakeValue50 = if value50 > estimate then 1.0 else 0.0
+    let probInfTakeValue25 = if value25 > estimate then 1.0 else 0.0
+    let probInfTakeValueLo = if valueLo > estimate then 1.0 else 0.0
+
+    let probTakeValueHi = (probInf * probInfTakeValueHi) + (probUnf * probUnfTakeValueHi)
+    let probTakeValue75 = (probInf * probInfTakeValue75) + (probUnf * probUnfTakeValue75)
+    let probTakeValue50 = (probInf * probInfTakeValue50) + (probUnf * probUnfTakeValue50)
+    let probTakeValue25 = (probInf * probInfTakeValue25) + (probUnf * probUnfTakeValue25)
+    let probTakeValueLo = (probInf * probInfTakeValueLo) + (probUnf * probUnfTakeValueLo)
+
+    let probTake
+        = (pHi * probTakeValueHi)
+        + (p75 * probTakeValue75)
+        + (p50 * probTakeValue50)
+        + (p25 * probTakeValue25)
+        + (pLo * probTakeValueLo)
+
+    let pHi' = (pHi * probTakeValueHi) / probTake
+    let p75' = (p75 * probTakeValue75) / probTake
+    let p50' = (p50 * probTakeValue50) / probTake
+    let p25' = (p25 * probTakeValue25) / probTake
+    let pLo' = (pLo * probTakeValueLo) / probTake
+
+    (pHi', p75', p50', p25', pLo')
+
 //-------------------------------------------------------------------------------------------------
 
 let private computeBid (pHi, p75, p50, p25, pLo) =
@@ -135,18 +135,18 @@ let private computeAsk (pHi, p75, p50, p25, pLo) =
 
 //-------------------------------------------------------------------------------------------------
 
-let private executeTake (pHi, p75, p50, p25, pLo) =
+let private executeSell (pHi, p75, p50, p25, pLo) =
 
-    let (pHi', p75', p50', p25', pLo') = computePosteriorTake (pHi, p75, p50, p25, pLo)
+    let (pHi', p75', p50', p25', pLo') = computePosteriorSell (pHi, p75, p50, p25, pLo)
 
     let bid = computeBid (pHi', p75', p50', p25', pLo')
     let ask = computeAsk (pHi', p75', p50', p25', pLo')
 
     (bid, ask, pHi', p75', p50', p25', pLo')
 
-let private executeSell (pHi, p75, p50, p25, pLo) =
+let private executeTake (pHi, p75, p50, p25, pLo) =
 
-    let (pHi', p75', p50', p25', pLo') = computePosteriorSell (pHi, p75, p50, p25, pLo)
+    let (pHi', p75', p50', p25', pLo') = computePosteriorTake (pHi, p75, p50, p25, pLo)
 
     let bid = computeBid (pHi', p75', p50', p25', pLo')
     let ask = computeAsk (pHi', p75', p50', p25', pLo')

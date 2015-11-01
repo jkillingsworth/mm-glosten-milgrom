@@ -13,20 +13,20 @@ let probInitValueLo = 0.5
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
-let probInfTakeValueHi = 1.0
-let probInfTakeValueLo = 0.0
 let probInfSellValueHi = 0.0
 let probInfSellValueLo = 1.0
+let probInfTakeValueHi = 1.0
+let probInfTakeValueLo = 0.0
 
-let probUnfTakeValueHi = 0.5
-let probUnfTakeValueLo = 0.5
 let probUnfSellValueHi = 0.5
 let probUnfSellValueLo = 0.5
+let probUnfTakeValueHi = 0.5
+let probUnfTakeValueLo = 0.5
 
-let probTakeValueHi = (probInf * probInfTakeValueHi) + (probUnf * probUnfTakeValueHi)
-let probTakeValueLo = (probInf * probInfTakeValueLo) + (probUnf * probUnfTakeValueLo)
 let probSellValueHi = (probInf * probInfSellValueHi) + (probUnf * probUnfSellValueHi)
 let probSellValueLo = (probInf * probInfSellValueLo) + (probUnf * probUnfSellValueLo)
+let probTakeValueHi = (probInf * probInfTakeValueHi) + (probUnf * probUnfTakeValueHi)
+let probTakeValueLo = (probInf * probInfTakeValueLo) + (probUnf * probUnfTakeValueLo)
 
 //-------------------------------------------------------------------------------------------------
 
@@ -44,20 +44,20 @@ let private computeAsk pHi pLo =
 
     (valueHi * probValueHiTake) + (valueLo * probValueLoTake)
 
-let private executeTake (pHi, pLo) =
+let private executeSell (pHi, pLo) =
 
-    let pHi' = pHi * probTakeValueHi
-    let pLo' = pLo * probTakeValueLo
+    let pHi' = pHi * probSellValueHi
+    let pLo' = pLo * probSellValueLo
 
     let bid = computeBid pHi' pLo'
     let ask = computeAsk pHi' pLo'
 
     (bid, ask, pHi', pLo')
 
-let private executeSell (pHi, pLo) =
+let private executeTake (pHi, pLo) =
 
-    let pHi' = pHi * probSellValueHi
-    let pLo' = pLo * probSellValueLo
+    let pHi' = pHi * probTakeValueHi
+    let pLo' = pLo * probTakeValueLo
 
     let bid = computeBid pHi' pLo'
     let ask = computeAsk pHi' pLo'

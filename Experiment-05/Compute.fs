@@ -20,29 +20,13 @@ let probInit value = Normal.PDF(50.50, 0.5, value)
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
-let probInfTake value estimate = 0.0 + Normal.CDF(estimate, 0.1, value)
 let probInfSell value estimate = 1.0 - Normal.CDF(estimate, 0.1, value)
+let probInfTake value estimate = 0.0 + Normal.CDF(estimate, 0.1, value)
 
-let probUnfTake value = 0.5
 let probUnfSell value = 0.5
+let probUnfTake value = 0.5
 
 //-------------------------------------------------------------------------------------------------
-
-let private computePosteriorTake p =
-
-    let estimate =
-        let f value = (p value) * value
-        integrate f valueLower valueUpper
-
-    let probTake value
-        = (probInf * (probInfTake value estimate))
-        + (probUnf * (probUnfTake value))
-
-    let f value = (p value) * (probTake value)
-    let probTakeOverall = integrate f valueLower valueUpper
-    let p' value = (f value) / probTakeOverall
-
-    p'
 
 let private computePosteriorSell p =
 
@@ -57,6 +41,22 @@ let private computePosteriorSell p =
     let f value = (p value) * (probSell value)
     let probSellOverall = integrate f valueLower valueUpper
     let p' value = (f value) / probSellOverall
+
+    p'
+
+let private computePosteriorTake p =
+
+    let estimate =
+        let f value = (p value) * value
+        integrate f valueLower valueUpper
+
+    let probTake value
+        = (probInf * (probInfTake value estimate))
+        + (probUnf * (probUnfTake value))
+
+    let f value = (p value) * (probTake value)
+    let probTakeOverall = integrate f valueLower valueUpper
+    let p' value = (f value) / probTakeOverall
 
     p'
 

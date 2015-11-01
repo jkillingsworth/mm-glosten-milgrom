@@ -20,29 +20,13 @@ let probInit value = ContinuousUniform.PDF(valueLower, valueUpper, value)
 let probInf = 0.5
 let probUnf = 1.0 - probInf
 
-let probInfTake value estimate = if value > estimate then 1.0 else 0.0
 let probInfSell value estimate = if value < estimate then 1.0 else 0.0
+let probInfTake value estimate = if value > estimate then 1.0 else 0.0
 
-let probUnfTake value = 0.5
 let probUnfSell value = 0.5
+let probUnfTake value = 0.5
 
 //-------------------------------------------------------------------------------------------------
-
-let private computePosteriorTake p =
-
-    let estimate =
-        let f value = (p value) * value
-        integrate f valueLower valueUpper
-
-    let probTake value
-        = (probInf * (probInfTake value estimate))
-        + (probUnf * (probUnfTake value))
-
-    let f value = (p value) * (probTake value)
-    let probTakeOverall = integrate f valueLower valueUpper
-    let p' value = (f value) / probTakeOverall
-
-    p'
 
 let private computePosteriorSell p =
 
@@ -57,6 +41,22 @@ let private computePosteriorSell p =
     let f value = (p value) * (probSell value)
     let probSellOverall = integrate f valueLower valueUpper
     let p' value = (f value) / probSellOverall
+
+    p'
+
+let private computePosteriorTake p =
+
+    let estimate =
+        let f value = (p value) * value
+        integrate f valueLower valueUpper
+
+    let probTake value
+        = (probInf * (probInfTake value estimate))
+        + (probUnf * (probUnfTake value))
+
+    let f value = (p value) * (probTake value)
+    let probTakeOverall = integrate f valueLower valueUpper
+    let p' value = (f value) / probTakeOverall
 
     p'
 
@@ -76,18 +76,18 @@ let private computeAsk p =
 
 //-------------------------------------------------------------------------------------------------
 
-let private executeTake p =
+let private executeSell p =
 
-    let p' = computePosteriorTake p
+    let p' = computePosteriorSell p
 
     let bid = computeBid p'
     let ask = computeAsk p'
 
     (bid, ask, p')
 
-let private executeSell p =
+let private executeTake p =
 
-    let p' = computePosteriorSell p
+    let p' = computePosteriorTake p
 
     let bid = computeBid p'
     let ask = computeAsk p'

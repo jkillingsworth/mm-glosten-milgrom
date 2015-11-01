@@ -130,7 +130,7 @@ let renderBelief path data =
     axis.MinorGridlineColor <- OxyColors.LightGray
     axis.MinorGridlineStyle <- LineStyle.Dot
     axis.StringFormat <- "F"
-    axis.AxisTitleDistance <- 16.0
+    axis.AxisTitleDistance <- 9.0
     model.Axes.Add(axis)
 
     let adjustment = (float Compute.count) / (2.0 * Compute.sigma * Compute.range)

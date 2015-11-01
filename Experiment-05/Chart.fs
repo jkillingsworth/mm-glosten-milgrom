@@ -128,7 +128,7 @@ let renderBelief path data =
     axis.MinorGridlineColor <- OxyColors.LightGray
     axis.MinorGridlineStyle <- LineStyle.Dot
     axis.StringFormat <- "F2"
-    axis.AxisTitleDistance <- 16.0
+    axis.AxisTitleDistance <- 9.0
     model.Axes.Add(axis)
 
     let series = FunctionSeries(System.Func<_,_>(p), lower, upper, 0.001)

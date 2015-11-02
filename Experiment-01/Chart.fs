@@ -25,7 +25,7 @@ let private defaultColorsToUseForPlots =
 
 //-------------------------------------------------------------------------------------------------
 
-let renderChart path data =
+let renderPrices path data =
 
     let model = PlotModel()
 

@@ -46,23 +46,23 @@ let private computeAsk pHi pLo =
 
 let private executeSell (pHi, pLo) =
 
-    let pHi' = pHi * probSellValueHi
-    let pLo' = pLo * probSellValueLo
+    let pHi' = pHi * probSellValueHi / ((pHi * probSellValueHi) + (pLo * probSellValueLo))
+    let pLo' = pLo * probSellValueLo / ((pHi * probSellValueHi) + (pLo * probSellValueLo))
 
     let bid = computeBid pHi' pLo'
     let ask = computeAsk pHi' pLo'
 
-    (bid, ask, pHi', pLo')
+    (bid, ask, (pHi', pLo'))
 
 let private executeTake (pHi, pLo) =
 
-    let pHi' = pHi * probTakeValueHi
-    let pLo' = pLo * probTakeValueLo
+    let pHi' = pHi * probTakeValueHi / ((pHi * probTakeValueHi) + (pLo * probTakeValueLo))
+    let pLo' = pLo * probTakeValueLo / ((pHi * probTakeValueHi) + (pLo * probTakeValueLo))
 
     let bid = computeBid pHi' pLo'
     let ask = computeAsk pHi' pLo'
 
-    (bid, ask, pHi', pLo')
+    (bid, ask, (pHi', pLo'))
 
 //-------------------------------------------------------------------------------------------------
 
@@ -94,17 +94,18 @@ let generateResults random executionPolicy =
 
     let pHi = probInitValueHi
     let pLo = probInitValueLo
+    let p = (pHi, pLo)
 
     let bid = computeBid pHi pLo
     let ask = computeAsk pHi pLo
 
     let value, execute = matchExecutionPolicy random executionPolicy
 
-    let generator (pHi, pLo) =
-        let (bid, ask, pHi, pLo) = execute (pHi, pLo)
-        Some ((value, bid, ask), (pHi, pLo))
+    let generator p =
+        let (bid, ask, p) = execute p
+        Some ((value, bid, ask, p), p)
 
     seq {
-        yield (value, bid, ask)
-        yield! Seq.unfold generator (pHi, pLo)
+        yield (value, bid, ask, p)
+        yield! Seq.unfold generator p
     }

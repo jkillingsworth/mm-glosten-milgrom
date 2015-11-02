@@ -142,7 +142,7 @@ let private executeSell (pHi, p75, p50, p25, pLo) =
     let bid = computeBid (pHi', p75', p50', p25', pLo')
     let ask = computeAsk (pHi', p75', p50', p25', pLo')
 
-    (bid, ask, pHi', p75', p50', p25', pLo')
+    (bid, ask, (pHi', p75', p50', p25', pLo'))
 
 let private executeTake (pHi, p75, p50, p25, pLo) =
 
@@ -151,7 +151,7 @@ let private executeTake (pHi, p75, p50, p25, pLo) =
     let bid = computeBid (pHi', p75', p50', p25', pLo')
     let ask = computeAsk (pHi', p75', p50', p25', pLo')
 
-    (bid, ask, pHi', p75', p50', p25', pLo')
+    (bid, ask, (pHi', p75', p50', p25', pLo'))
 
 let private executeNone (pHi, p75, p50, p25, pLo) =
 
@@ -164,7 +164,7 @@ let private executeNone (pHi, p75, p50, p25, pLo) =
     let bid = computeBid (pHi', p75', p50', p25', pLo')
     let ask = computeAsk (pHi', p75', p50', p25', pLo')
 
-    (bid, ask, pHi', p75', p50', p25', pLo')
+    (bid, ask, (pHi', p75', p50', p25', pLo'))
 
 //-------------------------------------------------------------------------------------------------
 
@@ -198,18 +198,19 @@ let generateResults random executionPolicy =
     let p50 = probInitValue50
     let p25 = probInitValue25
     let pLo = probInitValueLo
+    let p = (pHi, p75, p50, p25, pLo)
 
-    let bid = computeBid (pHi, p75, p50, p25, pLo)
-    let ask = computeAsk (pHi, p75, p50, p25, pLo)
+    let bid = computeBid p
+    let ask = computeAsk p
 
     let value = getValue executionPolicy
 
-    let generator (bid, ask, pHi, p75, p50, p25, pLo) =
+    let generator (bid, ask, p) =
         let execute = getExecuteFunc random (value, bid, ask)
-        let (bid, ask, pHi, p75, p50, p25, pLo) = execute (pHi, p75, p50, p25, pLo)
-        Some ((value, bid, ask), (bid, ask, pHi, p75, p50, p25, pLo))
+        let (bid, ask, p) = execute p
+        Some ((value, bid, ask, p), (bid, ask, p))
 
     seq {
-        yield (value, bid, ask)
-        yield! Seq.unfold generator (bid, ask, pHi, p75, p50, p25, pLo)
+        yield (value, bid, ask, p)
+        yield! Seq.unfold generator (bid, ask, p)
     }

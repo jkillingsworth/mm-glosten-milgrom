@@ -133,7 +133,7 @@ let renderBelief path data =
     axis.AxisTitleDistance <- 9.0
     model.Axes.Add(axis)
 
-    let adjustment = (float Compute.count) / (2.0 * Compute.sigma * Compute.range)
+    let adjustment = float Compute.scale / Compute.sigma
 
     let series = LineSeries()
     series.Title <- "Probability"

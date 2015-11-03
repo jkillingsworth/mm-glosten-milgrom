@@ -13,7 +13,7 @@ let sigma = 0.5
 
 let range = 5.0
 let scale = 100
-let count = int (range * float scale)
+let count = int (2.0 * range * float scale)
 
 let vInc = 2.0 * range * sigma / float count
 let vMin = mu - (range * sigma)

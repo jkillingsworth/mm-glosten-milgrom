@@ -58,6 +58,16 @@ This chart shows the market maker's belief about the price after 25 time steps:
 
 ![Experiment-06-Belief](images/Experiment-06-Belief.png)
 
+#### Experiment 07
+
+This chart shows the true price and market price over a period of 25 time steps:
+
+![Experiment-07-Prices](images/Experiment-07-Prices.png)
+
+This chart shows the market maker's belief about the price after 25 time steps:
+
+![Experiment-07-Belief](images/Experiment-07-Belief.png)
+
 ## References
 
 * *Bid, Ask, and Transaction Prices in a Specialist Market with Heterogeneously Informed Traders* by Lawrence R. Glosten and Paul R. Milgrom

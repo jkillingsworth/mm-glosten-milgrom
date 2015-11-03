@@ -21,13 +21,13 @@ let vMax = mu + (range * sigma)
 
 let values = Array.init count (fun i -> vMin + (float i * vInc))
 
-let probInitInitializer i =
+let probInitializer mu' sigma' i =
     let i = vInc * (float i)
-    let a = Normal.CDF(0.0, sigma, (-range * sigma) + i)
-    let b = Normal.CDF(0.0, sigma, (-range * sigma) + i + vInc)
+    let a = Normal.CDF(mu' - mu, sigma', (-range * sigma) + i)
+    let b = Normal.CDF(mu' - mu, sigma', (-range * sigma) + i + vInc)
     b - a
 
-let probInit = Array.init count probInitInitializer
+let probInit = probInitializer mu sigma |> Array.init count
 
 //-------------------------------------------------------------------------------------------------
 
@@ -73,31 +73,34 @@ let private computePosteriorSell p iBid =
 
     let pSell = computeProbSell p iBid
 
-    let mapper i pv =
-        let x = (probUnf * probEta) + if i < iBid then probInf else 0.0
-        (pv * x) / pSell
+    let mapping i x =
+        x * ((probUnf * probEta) + if i < iBid then probInf else 0.0)
 
-    p |> Array.mapi mapper
+    p
+    |> Array.mapi mapping
+    |> Array.map (fun x -> x / pSell)
 
 let private computePosteriorTake p iAsk =
 
     let pTake = computeProbTake p iAsk
 
-    let mapper i pv =
-        let x = (probUnf * probEta) + if i > iAsk then probInf else 0.0
-        (pv * x) / pTake
+    let mapping i x =
+        x * ((probUnf * probEta) + if i > iAsk then probInf else 0.0)
 
-    p |> Array.mapi mapper
+    p
+    |> Array.mapi mapping
+    |> Array.map (fun x -> x / pTake)
 
 let private computePosteriorNone p iBid iAsk =
 
     let pNone = computeProbNone p iBid iAsk
 
-    let mapper i pv =
-        let x = (probUnf * (1.0 - 2.0 * probEta)) + if i >= iBid && i <= iAsk then probInf else 0.0
-        (pv * x) / pNone
+    let mapping i x =
+        x * ((probUnf * (1.0 - 2.0 * probEta)) + if i >= iBid && i <= iAsk then probInf else 0.0)
 
-    p |> Array.mapi mapper
+    p
+    |> Array.mapi mapping
+    |> Array.map (fun x -> x / pNone)
 
 //-------------------------------------------------------------------------------------------------
 
